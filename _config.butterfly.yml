@@ -323,3 +323,9 @@ translate:
   msgToTraditionalChinese: "繁"
   #當文字是繁體時，按鈕顯示的文字
   msgToSimplifiedChinese: "簡"
+
+
+  # Inject the css and script (aplayer/meting)
+aplayerInject:
+  enable: true
+  per_page: true
