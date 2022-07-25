@@ -2,6 +2,7 @@
 title: excise
 date: 2022-07-22 14:09:22
 categories: 前端篇
+cover:
 ---
 1. 首字母大写
 

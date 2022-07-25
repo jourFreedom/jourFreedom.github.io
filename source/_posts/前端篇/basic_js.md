@@ -2,6 +2,10 @@
 title: basic_js
 date: 2022-07-22 14:09:22
 categories: 前端篇
+tags:
+  - Javascript
+cover: 
+abbrlink: 324dwer
 ---
 # Javascript基础语法
 

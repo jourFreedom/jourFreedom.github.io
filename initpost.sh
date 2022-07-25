@@ -2,7 +2,7 @@
 
 # 写入文件模板
 tempFun() {
-  result="---\ntitle: $1\ndate: $2\n$3: $4\n---"
+  result="---\ntitle: $1\ndate: $2\n$3: $4\ncover: \ntags: \ncategories: \n---"
 }
 
 # 处理文件

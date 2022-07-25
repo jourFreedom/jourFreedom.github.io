@@ -2,6 +2,7 @@
 title: project_excise
 date: 2022-07-22 14:09:23
 categories: 前端篇
+cover:
 ---
 ### 扫地机器人项目
 

@@ -2,6 +2,7 @@
 title: problem
 date: 2022-07-22 14:09:23
 categories: 前端篇
+cover:
 ---
 1. vue重载组件
 
