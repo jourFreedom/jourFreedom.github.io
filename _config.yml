@@ -108,7 +108,8 @@ aplayer:
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: https://github.com/jourFreedom/jourFreedom.github.io.git
-  branch: doc
+  repo: 
+    github: https://github.com/jourFreedom/jourFreedom.github.io.git,doc
+    gitee: https://gitee.com/ws066/markdown-document.git,doc
   message: 
   token: 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
