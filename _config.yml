@@ -109,6 +109,6 @@ aplayer:
 deploy:
   type: git
   repo: https://github.com/jourFreedom/jourFreedom.github.io.git
-  branch: master
+  branch: doc
   message: 
   token: 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
