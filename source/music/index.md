@@ -4,12 +4,15 @@ date: 2022-07-25 14:04:36
 ---
 
 
-<div class="aplayer no-destroy"
- data-id="60198"
- data-server="netease"
+<!-- <div class="aplayer no-destroy"
+ data-album_id="b4ch2fzCV2"
+ data-hash="6A007DE9AD122BD82AEA4AE9FFA722AC"
+ data-server="kugou"
  data-type="playlist"
  data-fixed="true"
- data-autoplay="true"> </div>
+ data-autoplay="true"> </div> -->
+
+ {% meting "35544154" "kugou" "album" "autoplay" "mutex:false" "listmaxheight:400px" "preload:none" "theme:#ad7a86"%}
 
 <!-- data-id	require	song id / playlist id / album id / search keyword
 data-server	require	music platform: netease, tencent, kugou, xiami, baidu
