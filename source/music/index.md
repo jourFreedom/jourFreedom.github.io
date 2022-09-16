@@ -2,17 +2,16 @@
 title: music
 date: 2022-07-25 14:04:36
 ---
-
+<https://wwwapi.kugou.com/share/zlist.html?u=62510738&h1=64928379562156343389563438205744184787&h2=96c9e04d67217eb27903617cc8cda7ed&listid=53&global_collection_id=collection_3_62510738_53_0&uid=62510738&type=0&_t=1659345528&sign=32fb426b0b95d43ad457e8c4939435a3&chl=link&chain=eNMV1fzCV2#hash=E729B3C485D590D82B4CFC2CEE1E3DFC&album_id=39316870>
 
 <!-- <div class="aplayer no-destroy"
- data-album_id="b4ch2fzCV2"
- data-hash="6A007DE9AD122BD82AEA4AE9FFA722AC"
+ data-id="b4ch2fzCV2"
  data-server="kugou"
  data-type="playlist"
  data-fixed="true"
  data-autoplay="true"> </div> -->
 
- {% meting "35544154" "kugou" "album" "autoplay" "mutex:false" "listmaxheight:400px" "preload:none" "theme:#ad7a86"%}
+ {% meting "53" "kugou" "playlist" "autoplay" "mutex:false" "listmaxheight:400px" "preload:none" "theme:#ad7a86"%}
 
 <!-- data-id	require	song id / playlist id / album id / search keyword
 data-server	require	music platform: netease, tencent, kugou, xiami, baidu

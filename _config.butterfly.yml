@@ -4,7 +4,23 @@
 
 # Site
 title: 清风
-subtitle: ''
+subtitle:
+  enable: true
+  # Typewriter Effect (打字效果)
+  effect: true
+  # loop (循環打字)
+  loop: true
+  # source 調用第三方服務
+  # source: false 關閉調用
+  # source: 1  調用一言網的一句話（簡體） https://hitokoto.cn/
+  # source: 2  調用一句網（簡體） http://yijuzhan.com/
+  # source: 3  調用今日詩詞（簡體） https://www.jinrishici.com/
+  # subtitle 會先顯示 source , 再顯示 sub 的內容
+  source: true
+  # 如果關閉打字效果，subtitle 只會顯示 sub 的第一行文字
+  sub:
+    - 今日事&#44;今日畢
+    - Never put off till tomorrow what you can do today
 description: '全栈成长笔记'
 keywords:
 author: kevin
@@ -77,8 +93,6 @@ index_generator:
   per_page: 10
   order_by: -date
 
-index_img: https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822808.jpg
-
 index_post_content:
   method: 3
   length: 500 # if you set method to 2 or 3, the length need to config
@@ -118,6 +132,15 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: butterfly
 
+index_img: https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822808.jpg
+
+# 圖片格式 url(http://xxxxxx.com/xxx.jpg)
+# 顏色（HEX值/RGB值/顔色單詞/漸變色)
+# 留空 不顯示背景
+background: url(https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301821181.jpg)
+
+footer_bg: https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822011.jpg
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 # deploy:
@@ -126,6 +149,38 @@ theme: butterfly
 #   branch: master
 #   message: 
 #   token: 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
+
+# Font settings for the site title and site subtitle
+# 左上角網站名字 主頁居中網站名字
+blog_title_font:
+  font_link: https://fonts.googleapis.com/css?family=Titillium+Web&display=swap
+  font-family: Titillium Web, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft JhengHei', 'Microsoft YaHei', sans-serif
+
+
+# 背景彩带
+canvas_fluttering_ribbon:
+  enable: true
+  mobile: false # false 手機端不顯示 true 手機端顯示
+
+# 鼠標點擊效果
+# zIndex建議只在-1和9999上選
+# -1 代表煙火效果在底部
+# 9999 代表煙火效果在前面
+fireworks:
+  enable: true
+  zIndex: 9999 # -1 or 9999
+  mobile: false
+
+# 點擊出現文字，文字可自行修改
+ClickShowText:
+  enable: false
+  text:
+    - I
+    - LOVE
+    - YOU
+  fontSize: 15px
+  random: false # 文字隨機顯示
+  mobile: false
 
 
 # 导航栏目录
@@ -286,30 +341,6 @@ toc:
   style_simple: false # for post
 
 
-# 背景彩带
-canvas_fluttering_ribbon:
-  enable: true
-  mobile: false # false 手機端不顯示 true 手機端顯示
-
-# 鼠標點擊效果
-# zIndex建議只在-1和9999上選
-# -1 代表煙火效果在底部
-# 9999 代表煙火效果在前面
-fireworks:
-  enable: false
-  zIndex: 9999 # -1 or 9999
-  mobile: false
-
-# 點擊出現文字，文字可自行修改
-ClickShowText:
-  enable: true
-  text:
-    - I
-    - LOVE
-    - YOU
-  fontSize: 15px
-  random: false # 文字隨機顯示
-  mobile: false
 
 # 美化頁面顯示
 beautify:
@@ -324,8 +355,38 @@ preloader: true
 error_404:
   enable: true
   subtitle: "頁面沒有找到"
-  background: 
+  background: https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301821181.jpg
 
+
+# use使用的評論（請注意，最多支持兩個，如果不需要請留空）
+# 注意：雙評論不能是 Disqus 和 Disqusjs 一起，由於其共用同一個 ID，會出錯
+# text是否顯示評論服務商的名字
+# lazyload是否為評論開啟lazyload，開啟後，只有滾動到評論位置時才會加載評論所需要的資源（開啟 lazyload 後，評論數將不顯示）
+# count是否在文章頂部顯示評論數
+# livere、Giscus 和 utterances 不支持評論數顯示
+# card_post_count是否在首頁文章卡片顯示評論數
+# gitalk、livere 、Giscus 和 utterances 不支持評論數顯示
+
+
+comments:
+  # Up to two comments system, the first will be shown as default
+  # Choose: Disqus/Disqusjs/Livere/Gitalk/Valine/Waline/Utterances/Facebook Comments/Twikoo
+  use: Valine,Disqus
+  text: true # Display the comment name next to the button
+  # lazyload: The comment system will be load when comment element enters the browser's viewport.
+  # If you set it to true, the comment count will be invalid
+  lazyload: true
+  count: true # Display comment count in top_img
+  card_post_count: false # Display comment count in Home Page
+
+# Chat Button [recommend]
+# It will create a button in the bottom right corner of website, and hide the origin button
+chat_btn: true
+
+# algolia_search:
+#   enable: true
+#   hits:
+#     per_page: 6
 
 translate:
   enable: true
