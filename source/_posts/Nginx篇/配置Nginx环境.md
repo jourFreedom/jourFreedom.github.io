@@ -58,7 +58,7 @@ server {
 Nginx还带有健康检查（服务器心跳检查）功能，会定期轮询向集群里的所有服务器发送健康检查请求，来检查集群中是否有服务器处于异常状态。
 一旦发现某台服务器异常，那么在这以后代理进来的客户端请求都不会被发送到该服务器上（直健康检查发现该服务器已恢复正常），从而保证客户端访问的稳定性。
 
-```nginx
+```bash
 #添加两个新的服务,用于分担8080端口的压力
  upstream domain {
     server localhost:9090;
@@ -89,7 +89,7 @@ Nginx还带有健康检查（服务器心跳检查）功能，会定期轮询向
 
 但是使用 Nginx 来跨域简单明了，主要用到的是 Nginx 的反向代理原理。
 
-```nginx
+```bash
 # 首尾配置暂时忽略
 server {
         listen       8080;
@@ -104,4 +104,27 @@ server {
         }
 }
 # 首尾配置暂时忽略
+```
+
+### 配置静态文件服务器
+
+~ 开头表示区分大小写的正则匹配，^非，= 开头表示精确匹配
+
+使用 `alias`会直接映射到`/www/wwwroot/api-tool/uploads/`目录下
+
+**使用`root`会映射到`/www/wwwroot/api-tool/uploads/file/`**
+
+```bash
+server
+{
+        listen 80;
+        server_name localhost; # 自己PC的ip或者服务器的域名 charset utf-8; # 避免中文乱码
+                location ^~ /file/ {
+                        index index.html index.htm;
+                        alias /www/wwwroot/api-tool/uploads/; # 存放文件的目录
+                        autoindex on; # 索引
+                        autoindex_exact_size on; # 显示文件大小
+                        autoindex_localtime on; # 显示文件时间
+                }
+}
 ```

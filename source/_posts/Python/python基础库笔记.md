@@ -10,11 +10,6 @@ categories: Python
 {% galleryGroup name description link img-url %}
 </div>
 
-作者: Jerry
-連結: <https://butterfly.js.org/posts/4aa8abbe/#Note-Bootstrap-Callout>
-來源: Butterfly
-著作權歸作者所有。商業轉載請聯絡作者獲得授權，非商業轉載請註明出處。
-
 1. python基本语法
   列表: List
   访问列表的值: list[1]

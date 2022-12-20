@@ -35,14 +35,20 @@ docker search
 docker pull <CONTAINER>
 
 容器列表
-docker container ls
+# docker container ls
   -all: 全部
   -aq: 全部处于安静模式 
 
 # 启动容器
-docker run -it <CONTAINER> /bin/bash
+docker run -it <IMAGES> /bin/bash
 > 1. -i 交互操作
   2. -t 终端
+
+# 修改容器名
+docker rename <my_container> <my_new_container>
+
+# 停止容器
+docker stop <container>
 
 # 退出终端
 exit
@@ -51,11 +57,8 @@ exit
 docker ps -a
 docker start <CONTAINER ID>
 
-# 后台运行
-docker run -itd --name <CONTAINER>
-
 # 停止容器
-docker stop <CONTAINER ID>
+docker container stop <CONTAINER ID>
 
 # 进入容器
 docker attach <CONTAINER ID>
@@ -63,6 +66,12 @@ docker attach <CONTAINER ID>
 # 删除容器
 docker container rm <CONTAINER>
 
+删除镜像
+docker rmi <IMAGES>
 
+# 删除容器log
+log目录： 
+cd /var/lib/docker/containers/
+docker ps -a
 
 ```

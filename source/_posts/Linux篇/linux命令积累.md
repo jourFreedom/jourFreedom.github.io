@@ -58,9 +58,17 @@ cp –r test/ newtest
    `${files##*/}` 提取最后一级目录名
    `${basename ${file##*/}}` 提取文件后缀
 
+8. 解压文件
+   `tar -zxvf abc.tgz`
+
 ## 系统管理
 
 1. `find` - 查找和搜索文件
+
+```bash
+find path -option [-print] [-exec -ok command]
+```
+
 2. `netstat` - 显示当前的网络状态
    > 可以通过`cd /proc/${进程id}/cwd`进入该进程项目的目录
 

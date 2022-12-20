@@ -1,14 +1,12 @@
 ---
-title: centos安装nodejs
+title: TS使用进阶
+categories: TypeScript
 top_img: >-
   https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/8ea16b280878493e8b07cd4f33c4b465_9b9b8903ca754025ae8507dbb805525a_thumb.jpg
-date: 2022-09-16 10:25:09
-updated: 2022-09-16 10:25:09
-tags:
-categories: Linux篇
-keywords: 
-  - centos7
-  - nodejs
+date: 2022-12-01 15:24:09
+updated: 2022-12-01 15:24:09
+tags: TS 进阶
+keywords: TS
 description:
 comments:
 cover:
@@ -26,14 +24,3 @@ aplayer:
 highlight_shrink:
 aside:
 ---
-
-1. 下载安装node环境
-
-```bash
-# 下载node包
-wget -c [nodeurl] 
-mv [nodeurl] nodejs
-解压node包
-tar -zxvf nodejs
-
-```
