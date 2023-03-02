@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>js循环使用async，await | 清风</title><meta name="author" content="kevin"><meta name="copyright" content="kevin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="async 与 await 的使用方式相对简单。 蛤当你尝试在循环中使用await时，事情就会变得复杂一些。 在本文中，分享一些在如果循环中使用await值得注意的问题。 准备一个例子对于这篇文章，假设你想从水果篮中获取水果的数量。 12345const fruitBasket &#x3D; &amp;#123; apple: 27, grape: 0, pear: 14&amp;#125;;  你想从fruitBaske">
+<meta property="og:type" content="article">
+<meta property="og:title" content="js循环使用async，await">
+<meta property="og:url" content="https://jourfreedom.github.io/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/index.html">
+<meta property="og:site_name" content="清风">
+<meta property="og:description" content="async 与 await 的使用方式相对简单。 蛤当你尝试在循环中使用await时，事情就会变得复杂一些。 在本文中，分享一些在如果循环中使用await值得注意的问题。 准备一个例子对于这篇文章，假设你想从水果篮中获取水果的数量。 12345const fruitBasket &#x3D; &amp;#123; apple: 27, grape: 0, pear: 14&amp;#125;;  你想从fruitBaske">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/light%20trails%20photography%20cover.jpg">
+<meta property="article:published_time" content="2023-02-07T03:48:25.000Z">
+<meta property="article:modified_time" content="2023-02-07T03:48:25.000Z">
+<meta property="article:author" content="kevin">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/light%20trails%20photography%20cover.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://jourfreedom.github.io/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'js循环使用async，await',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-02-07 11:48:25'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/buildings-landmarks-skyscrapers-towers.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清單</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音樂</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 電影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/8ea16b280878493e8b07cd4f33c4b465_9b9b8903ca754025ae8507dbb805525a_thumb.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">清风</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清單</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音樂</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 電影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">js循环使用async，await</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-02-07T03:48:25.000Z" title="发表于 2023-02-07 11:48:25">2023-02-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-02-07T03:48:25.000Z" title="更新于 2023-02-07 11:48:25">2023-02-07</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%9C%AA%E5%88%86%E7%B1%BB/">未分类</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="js循环使用async，await"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>async 与 await 的使用方式相对简单。 蛤当你尝试在循环中使用await时，事情就会变得复杂一些。</p>
+<p>在本文中，分享一些在如果循环中使用await值得注意的问题。</p>
+<h2 id="准备一个例子"><a href="#准备一个例子" class="headerlink" title="准备一个例子"></a>准备一个例子</h2><p>对于这篇文章，假设你想从水果篮中获取水果的数量。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fruitBasket = &#123;</span><br><span class="line"> <span class="attr">apple</span>: <span class="number">27</span>,</span><br><span class="line"> <span class="attr">grape</span>: <span class="number">0</span>,</span><br><span class="line"> <span class="attr">pear</span>: <span class="number">14</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>你想从fruitBasket获得每个水果的数量。 要获取水果的数量，可以使用getNumFruit函数。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">getNumFruit</span> = fruit =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> fruitBasket[fruit];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> numApples = <span class="title function_">getNumFruit</span>(<span class="string">&#x27;apple&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(numApples); <span class="comment">//27</span></span><br></pre></td></tr></table></figure>
+
+<p>现在，假设fruitBasket是从服务器上获取，这里我们使用 setTimeout 来模拟。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">sleep</span> = ms =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> <span class="built_in">setTimeout</span>(resolve, ms))</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="title function_">getNumFruie</span> = fruit =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">sleep</span>(<span class="number">1000</span>).<span class="title function_">then</span>(<span class="function"><span class="params">v</span> =&gt;</span> fruitBasket[fruit]);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">getNumFruit</span>(<span class="string">&quot;apple&quot;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">num</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(num)); <span class="comment">// 27</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，假设你想使用await和getNumFruit来获取异步函数中每个水果的数量。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">control</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> numApples = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(<span class="string">&#x27;apple&#x27;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(numApples);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> numGrapes = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(<span class="string">&#x27;grape&#x27;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(numGrapes);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> numPears = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(<span class="string">&#x27;pear&#x27;</span>);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(numPears);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>图片描述</p>
+<p>在 for 循环中使用 await<br>首先定义一个存放水果的数组：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fruitsToGet = [“apple”, “grape”, “pear”];</span><br></pre></td></tr></table></figure>
+
+<p>循环遍历这个数组：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">forLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; fruitsToGet.<span class="property">length</span>; index++) &#123;</span><br><span class="line">    <span class="comment">// 得到每个水果的数量</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在for循环中，过上使用getNumFruit来获取每个水果的数量，并将数量打印到控制台。</p>
+<p>由于getNumFruit返回一个promise，我们使用 await 来等待结果的返回并打印它。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">forLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> index = <span class="number">0</span>; index &lt; fruitsToGet.<span class="property">length</span>; index ++) &#123;</span><br><span class="line">    <span class="keyword">const</span> fruit = fruitsToGet[index];</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(fruit);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(numFruit);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当使用await时，希望JavaScript暂停执行，直到等待 promise 返回处理结果。这意味着for循环中的await 应该按顺序执行。</p>
+<p>结果正如你所预料的那样。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">“<span class="title class_">Start</span>”;</span><br><span class="line">“<span class="title class_">Apple</span>: <span class="number">27</span>”;</span><br><span class="line">“<span class="title class_">Grape</span>: <span class="number">0</span>”;</span><br><span class="line">“<span class="title class_">Pear</span>: <span class="number">14</span>”;</span><br><span class="line">“<span class="title class_">End</span>”;</span><br></pre></td></tr></table></figure>
+
+<p>图片描述</p>
+<p>这种行为适用于大多数循环(比如while和for-of循环)…</p>
+<p>但是它不能处理需要回调的循环，如forEach、map、filter和reduce。在接下来的几节中，我们将研究await 如何影响forEach、map和filter。</p>
+<p>在 forEach 循环中使用 await<br>首先，使用 forEach 对数组进行遍历。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">forEach</span> = _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  fruitsToGet.<span class="title function_">forEach</span>(<span class="function"><span class="params">fruit</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接下来，我们将尝试使用getNumFruit获取水果数量。 （注意回调函数中的async关键字。我们需要这个async关键字，因为await在回调函数中）。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">forEachLoop</span> = _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  fruitsToGet.<span class="title function_">forEach</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(fruit);</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(numFruit)</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我期望控制台打印以下内容：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">“<span class="title class_">Start</span>”;</span><br><span class="line">“<span class="number">27</span>”;</span><br><span class="line">“<span class="number">0</span>”;</span><br><span class="line">“<span class="number">14</span>”;</span><br><span class="line">“<span class="title class_">End</span>”;</span><br></pre></td></tr></table></figure>
+
+<p>但实际结果是不同的。在forEach循环中等待返回结果之前，JavaScrip先执行了 console.log(‘End’)。</p>
+<p>实际控制台打印如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">‘<span class="title class_">Start</span>’</span><br><span class="line">‘<span class="title class_">End</span>’</span><br><span class="line">‘<span class="number">27</span>’</span><br><span class="line">‘<span class="number">0</span>’</span><br><span class="line">‘<span class="number">14</span>’</span><br></pre></td></tr></table></figure>
+
+<p>图片描述</p>
+<p><strong>JavaScript 中的 forEach不支持 promise 感知，也支持 async 和await，所以不能在 forEach 使用 await 。</strong></p>
+<p>在 map 中使用 await<br>如果在map中使用await, map 始终返回promise数组，这是因为异步函数总是返回promise。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">mapLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>)</span><br><span class="line">  <span class="keyword">const</span> numFruits = <span class="keyword">await</span> fruitsToGet.<span class="title function_">map</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(fruit);</span><br><span class="line">    <span class="keyword">return</span> numFruit;</span><br><span class="line">  &#125;)</span><br><span class="line">  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(numFruits);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line">      </span><br><span class="line"></span><br><span class="line">“<span class="title class_">Start</span>”;</span><br><span class="line">“[<span class="title class_">Promise</span>, <span class="title class_">Promise</span>, <span class="title class_">Promise</span>]”;</span><br><span class="line">“<span class="title class_">End</span>”;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果你在 map 中使用 await，map 总是返回promises，你必须等待promises 数组得到处理。 或者通过await Promise.all(arrayOfPromises)来完成此操作。</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">mapLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> promises = fruitsToGet.<span class="title function_">map</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(fruit);</span><br><span class="line">    <span class="keyword">return</span> numFruit;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> numFruits = <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>(promises);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(numFruits);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果如下：</p>
+<p>图片描述</p>
+<p>如果你愿意，可以在promise 中处理返回值，解析后的将是返回的值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">mapLoop</span> = _ =&gt; &#123;</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">  <span class="keyword">const</span> promises = fruitsToGet.<span class="title function_">map</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> <span class="title function_">getNumFruit</span>(fruit);</span><br><span class="line">    <span class="keyword">return</span> numFruit + <span class="number">100</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">“<span class="title class_">Start</span>”;</span><br><span class="line">“[<span class="number">127</span>, <span class="number">100</span>, <span class="number">114</span>]”;</span><br><span class="line">“<span class="title class_">End</span>”;</span><br></pre></td></tr></table></figure>
+
+<p>在 filter 循环中使用 await<br>当你使用filter时，希望筛选具有特定结果的数组。假设过滤数量大于20的数组。</p>
+<p>如果你正常使用filter （没有 await），如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">filterLoop</span> =  _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> moreThan20 =  fruitsToGet.<span class="title function_">filter</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> fruitBasket[fruit]</span><br><span class="line">    <span class="keyword">return</span> numFruit &gt; <span class="number">20</span></span><br><span class="line">  &#125;)</span><br><span class="line">  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(moreThan20) </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;END&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Start</span></span><br><span class="line">[<span class="string">&quot;apple&quot;</span>]</span><br><span class="line"><span class="variable constant_">END</span></span><br></pre></td></tr></table></figure>
+
+<p>filter 中的await不会以相同的方式工作。 事实上，它根本不起作用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">filterLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> moreThan20 =  <span class="keyword">await</span> fruitsToGet.<span class="title function_">filter</span>(<span class="keyword">async</span> fruit =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = fruitBasket[fruit]</span><br><span class="line">    <span class="keyword">return</span> numFruit &gt; <span class="number">20</span></span><br><span class="line">  &#125;)</span><br><span class="line">  </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(moreThan20) </span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;END&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 打印结果</span></span><br><span class="line"><span class="title class_">Start</span></span><br><span class="line">[<span class="string">&quot;apple&quot;</span>, <span class="string">&quot;grape&quot;</span>, <span class="string">&quot;pear&quot;</span>]</span><br><span class="line"><span class="variable constant_">END</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么会发生这种情况?</p>
+<p><strong>当在filter 回调中使用await时，回调总是一个promise。由于promise 总是真的，数组中的所有项都通过filter</strong> 。在filter 使用 await类以下这段代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> filtered = array.<span class="title function_">filter</span>(<span class="literal">true</span>);</span><br></pre></td></tr></table></figure>
+
+<p>在filter使用 await 正确的三个步骤</p>
+<p>使用map返回一个promise 数组<br>使用 await 等待处理结果<br>使用 filter 对返回的结果进行处理</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">filterLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> promises = <span class="keyword">await</span> fruitsToGet.<span class="title function_">map</span>(<span class="function"><span class="params">fruit</span> =&gt;</span> <span class="title function_">getNumFruit</span>(fruit));</span><br><span class="line"> </span><br><span class="line">  <span class="keyword">const</span> numFruits = <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>(promises);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> moreThan20 = fruitsToGet.<span class="title function_">filter</span>(<span class="function">(<span class="params">fruit, index</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = numFruits[index];</span><br><span class="line">    <span class="keyword">return</span> numFruit &gt; <span class="number">20</span>;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(moreThan20);</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<p>在 reduce 循环中使用 await<br>如果想要计算 fruitBastet中的水果总数。 通常，你可以使用reduce循环遍历数组并将数字相加。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">reduceLoop</span> = _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sum = fruitsToGet.<span class="title function_">reduce</span>(<span class="function">(<span class="params">sum, fruit</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = fruitBasket[fruit];</span><br><span class="line">    <span class="keyword">return</span> sum + numFruit;</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(sum)</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<p>clipboard.png</p>
+<p><strong>当你在 reduce 中使用await时，结果会变得非常混乱。</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">const</span> <span class="title function_">reduceLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sum = <span class="keyword">await</span> fruitsToGet.<span class="title function_">reduce</span>(<span class="keyword">async</span> (sum, fruit) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> fruitBasket[fruit];</span><br><span class="line">    <span class="keyword">return</span> sum + numFruit;</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(sum)</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>[object Promise]14 是什么 鬼？？</p>
+<p>剖析这一点很有趣。</p>
+<p>在第一次遍历中，sum为0。numFruit是27(通过getNumFruit(apple)的得到的值)，0 + 27 &#x3D; 27。<br>在第二次遍历中，sum是一个promise。 （为什么？因为异步函数总是返回promises！）numFruit是0.promise 无法正常添加到对象，因此JavaScript将其转换为[object Promise]字符串。 [object Promise] + 0 是object Promise] 0。<br>在第三次遍历中，sum 也是一个promise。 numFruit是14. [object Promise] + 14是[object Promise] 14。<br>解开谜团！</p>
+<p>这意味着，你可以在reduce回调中使用await，但是你必须记住先等待累加器！</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">reduceLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sum = <span class="keyword">await</span> fruitsToGet.<span class="title function_">reduce</span>(<span class="keyword">async</span> (promisedSum, fruit) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> sum = <span class="keyword">await</span> promisedSum;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> fruitBasket[fruit];</span><br><span class="line">    <span class="keyword">return</span> sum + numFruit;</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(sum)</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是从上图中看到的那样，await 操作都需要很长时间。 发生这种情况是因为reduceLoop需要等待每次遍历完成promisedSum。</p>
+<p>有一种方法可以加速reduce循环，如果你在等待promisedSum之前先等待getNumFruits()，那么reduceLoop只需要一秒钟即可完成：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">reduceLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> sum = <span class="keyword">await</span> fruitsToGet.<span class="title function_">reduce</span>(<span class="keyword">async</span> (promisedSum, fruit) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> numFruit = <span class="keyword">await</span> fruitBasket[fruit];</span><br><span class="line">    <span class="keyword">const</span> sum = <span class="keyword">await</span> promisedSum;</span><br><span class="line">    <span class="keyword">return</span> sum + numFruit;</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(sum)</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这是因为reduce可以在等待循环的下一个迭代之前触发所有三个getNumFruit promise。然而，这个方法有点令人困惑，因为你必须注意等待的顺序。</p>
+<p>在reduce中使用wait最简单(也是最有效)的方法是</p>
+<p>使用map返回一个promise 数组<br>使用 await 等待处理结果<br>使用 reduce 对返回的结果进行处理</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">reduceLoop</span> = <span class="keyword">async</span> _ =&gt; &#123;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;Start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> promises = fruitsToGet.<span class="title function_">map</span>(getNumFruit);</span><br><span class="line"><span class="keyword">const</span> numFruits = <span class="keyword">await</span> <span class="title class_">Promise</span>.<span class="title function_">all</span>(promises);</span><br><span class="line"><span class="keyword">const</span> sum = numFruits.<span class="title function_">reduce</span>(<span class="function">(<span class="params">sum, fruit</span>) =&gt;</span> sum + fruit);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(sum)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;End&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这个版本易于阅读和理解，需要一秒钟来计算水果总数。</p>
+<p>从上面看出来什么</p>
+<blockquote>
+<p>如果你想连续执行await调用，请使用for循环(或任何没有回调的循环)。<br>永远不要和forEach一起使用await，而是使用for循环(或任何没有回调的循环)。<br>不要在 filter 和 reduce 中使用 await，如果需要，先用 map 进一步骤处理，然后在使用 filter 和 reduce 进行处理。</p>
+</blockquote>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jourfreedom.github.io">kevin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jourfreedom.github.io/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/">https://jourfreedom.github.io/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jourfreedom.github.io" target="_blank">清风</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/light%20trails%20photography%20cover.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2023/03/02/Java%E7%AF%87/JAVA%E9%85%8D%E7%BD%AENacos/"><img class="prev-cover" src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822009.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">JAVA配置Nacos</div></div></a></div><div class="next-post pull-right"><a href="/2023/02/02/%E5%89%8D%E7%AB%AF%E7%AF%87/uniapp%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98/"><img class="next-cover" src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301736773.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">uniapp使用问题</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/buildings-landmarks-skyscrapers-towers.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">kevin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">50</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">15</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/jourFreedom/jourFreedom.github.io.git"><i class="fab fa-github"></i><span>Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/obey-yechuan" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/yechuan97@outlook.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">生活是一面镜子，你对它笑，它也会回报以微笑。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E4%B8%80%E4%B8%AA%E4%BE%8B%E5%AD%90"><span class="toc-text">准备一个例子</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/03/02/Java%E7%AF%87/JAVA%E9%85%8D%E7%BD%AENacos/" title="JAVA配置Nacos"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822009.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="JAVA配置Nacos"/></a><div class="content"><a class="title" href="/2023/03/02/Java%E7%AF%87/JAVA%E9%85%8D%E7%BD%AENacos/" title="JAVA配置Nacos">JAVA配置Nacos</a><time datetime="2023-03-02T08:48:31.000Z" title="发表于 2023-03-02 16:48:31">2023-03-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/" title="js循环使用async，await"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/light%20trails%20photography%20cover.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="js循环使用async，await"/></a><div class="content"><a class="title" href="/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/" title="js循环使用async，await">js循环使用async，await</a><time datetime="2023-02-07T03:48:25.000Z" title="发表于 2023-02-07 11:48:25">2023-02-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/02/%E5%89%8D%E7%AB%AF%E7%AF%87/uniapp%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98/" title="uniapp使用问题"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301736773.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="uniapp使用问题"/></a><div class="content"><a class="title" href="/2023/02/02/%E5%89%8D%E7%AB%AF%E7%AF%87/uniapp%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98/" title="uniapp使用问题">uniapp使用问题</a><time datetime="2023-02-02T10:38:58.000Z" title="发表于 2023-02-02 18:38:58">2023-02-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/01/%E5%89%8D%E7%AB%AF%E7%AF%87/vue/vue3%E4%BD%BF%E7%94%A8%E7%BC%96%E7%A8%8B%E5%BC%8F%E6%B8%B2%E6%9F%93%E7%BB%84%E4%BB%B6/" title="vue3使用编程式渲染组件"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822807.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="vue3使用编程式渲染组件"/></a><div class="content"><a class="title" href="/2023/02/01/%E5%89%8D%E7%AB%AF%E7%AF%87/vue/vue3%E4%BD%BF%E7%94%A8%E7%BC%96%E7%A8%8B%E5%BC%8F%E6%B8%B2%E6%9F%93%E7%BB%84%E4%BB%B6/" title="vue3使用编程式渲染组件">vue3使用编程式渲染组件</a><time datetime="2023-02-01T10:01:35.000Z" title="发表于 2023-02-01 18:01:35">2023-02-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/12/27/Java%E7%AF%87/Java%E9%85%8D%E7%BD%AE%E7%AF%87/" title="Java配置篇"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822004.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Java配置篇"/></a><div class="content"><a class="title" href="/2022/12/27/Java%E7%AF%87/Java%E9%85%8D%E7%BD%AE%E7%AF%87/" title="Java配置篇">Java配置篇</a><time datetime="2022-12-27T02:44:27.000Z" title="发表于 2022-12-27 10:44:27">2022-12-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822011.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By kevin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://jourfreedom.github.io/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/'
+    this.page.identifier = '/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/'
+    this.page.title = 'js循环使用async，await'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Valine' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><div class="aplayer no-destroy" data-id="35544154" data-server="kugou" data-type="album" data-fixed="true" data-autoplay="true"> </div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
