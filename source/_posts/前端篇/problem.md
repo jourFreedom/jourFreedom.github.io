@@ -59,3 +59,5 @@ axios 配置withCredentials  后端不允许 配置Access-Control-Allow-Origin �
 
 13. has been blocked by CORS policy: Request header field cache-control is not allowed by Access-Control-Allow-Headers in preflight response. 配置跨域后预检测、
 配置前端request Header 与后端配置 allow cor header 一致
+
+14. 使用顶级域名混用cookie时会导致不同环境存在多个cookie字段,导致登录数据出错

@@ -6,6 +6,8 @@ date: 2022-07-30 14:35:07
 updated: 2022-07-30 14:35:07
 tags:
 categories:
+  - 前端篇
+  - vue
 keywords:
 description:
 comments:
@@ -26,7 +28,9 @@ aside:
 ---
 
 ## 环境变量
+
 在根目录新建`.env.[mode]`文件
+
 ```env
 .env                # 所有情况下都会加载
 .env.local          # 所有情况下都会加载，但会被 git 忽略
@@ -36,6 +40,7 @@ aside:
 
 加载的环境变量也会通过 import.meta.env 暴露给客户端源码。
 `import.meta.env`的值为
+
 ```javascript
 {
   BASE_URL: "/"
@@ -53,16 +58,20 @@ aside:
 DB_PASSWORD=foobar
 VITE_SOME_KEY=123
 ```
-只有 VITE_SOME_KEY 会被暴露为` import.meta.env.VITE_SOME_KEY` 提供给客户端源码，而 `DB_PASSWORD` 则不会。
+
+只有 VITE_SOME_KEY 会被暴露为`import.meta.env.VITE_SOME_KEY` 提供给客户端源码，而 `DB_PASSWORD` 则不会。
 
 ## 模式
+
 默认情况下，开发服务器 (dev 命令) 运行在 development (开发) 模式，而 build 命令则运行在 production (生产) 模式。
 
 这意味着当执行 vite build 时，它会自动加载 .env.production 中可能存在的环境变量：
+
 ```env
 # .env.production
 VITE_APP_TITLE=My App  // 等号左右不要空白
 ```
+
 在你的应用中，你可以使用 `import.meta.env.VITE_APP_TITLE` 渲染标题。
 
 然而，重要的是要理解 **模式** 是一个更广泛的概念，而不仅仅是开发和生产。一个典型的例子是，你可能希望有一个 “staging” (预发布|预上线) 模式，它应该具有类似于生产的行为，但环境变量与生产环境略有不同。

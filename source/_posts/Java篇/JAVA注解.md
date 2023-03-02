@@ -46,3 +46,9 @@ public class test1 {
   }
 }
 ```
+
+### @PropertySource
+
+{% note red 'far fa-hand-scissors' flat %}
+不支持`yml`文件，只支持`properties`配置文件
+{% endnote %}
