@@ -90,6 +90,26 @@ find path -option [-print] [-exec -ok command]
 
 1. `df` - 显示磁盘空间使用情况
 
+可选参数
+
+- `-a, --all` 包含所有的具有 0 Blocks 的文件系统
+- `--block-size={SIZE}` 使用 {SIZE} 大小的 Blocks
+- `-h, --human-readable` 使用人类可读的格式(预设值是不加这个选项的...)
+- `-H, --si` 很像 -h, 但是用 1000 为单位而不是用 1024
+- `-i, --inodes` 列出 inode 资讯，不列出已使用 block
+- `-k, --kilobytes` 就像是 --block-size=1024
+- `-l, --local` 限制列出的文件结构
+- `-m, --megabytes` 就像 --block-size=1048576
+- `--no-sync` 取得资讯前不 sync (预设值)
+- `-P, --portability` 使用 POSIX 输出格式
+- `--sync` 在取得资讯前 sync
+- `-t, --type=TYPE` 限制列出文件系统的 TYPE
+- `-T, --print-type` 显示文件系统的形式
+- `-x, --exclude-type=TYPE` 限制列出文件系统不要显示 TYPE
+- `-v` (忽略)
+- `--help` 显示这个帮手并且离开
+- `--version` 输出版本资讯并且离开
+
 ## 文件传输
 
 1. `curl` - 文件传输工具
@@ -105,3 +125,17 @@ find path -option [-print] [-exec -ok command]
  1. kill -9 $(netstat -tlnp|grep 8080|awk '{print $7}'|awk -F '/' '{print $1}')  杀死指定端口的进程
 
 ## 扩展
+
+### 重启
+
+1. `reboot`
+2. `shutdown -r now` 立即重启
+3. `shutdown -r 10` 10分钟后重启
+4. `shutdown -r 10:00` 10:00重启
+
+### 关机
+
+`halt` 立即关机
+`poweroff` 立刻关机
+`shutdown -h now` 立刻关机
+`shutdown -h 10` 10分钟关机
