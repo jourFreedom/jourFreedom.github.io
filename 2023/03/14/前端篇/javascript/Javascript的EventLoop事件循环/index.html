@@ -1,0 +1,297 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Javascript的EventLoop事件循环 | 清风</title><meta name="keywords" content="javascript,eventloop"><meta name="author" content="kevin"><meta name="copyright" content="kevin"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="“請說說什麼是 Event Loop?” 這句經典的面試題不知道嚇倒了多少人，包括曾經的我自己…，這篇就是本人用來喚醒記憶用的日常 MDN 閱讀筆記，歡迎對這主題”好像懂又好像不懂”的夥伴們一起來深入了解一下吧    前言在開始之前需要先簡單釐清一下概念，我們都知道 Javascript 語言本身是單線程環境，也就是一次只同時處理一件事（call stack），但在瀏覽器中，V8 引擎中 “con">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Javascript的EventLoop事件循环">
+<meta property="og:url" content="https://jourfreedom.github.io/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/index.html">
+<meta property="og:site_name" content="清风">
+<meta property="og:description" content="“請說說什麼是 Event Loop?” 這句經典的面試題不知道嚇倒了多少人，包括曾經的我自己…，這篇就是本人用來喚醒記憶用的日常 MDN 閱讀筆記，歡迎對這主題”好像懂又好像不懂”的夥伴們一起來深入了解一下吧    前言在開始之前需要先簡單釐清一下概念，我們都知道 Javascript 語言本身是單線程環境，也就是一次只同時處理一件事（call stack），但在瀏覽器中，V8 引擎中 “con">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822809.jpg">
+<meta property="article:published_time" content="2023-03-14T03:15:09.000Z">
+<meta property="article:modified_time" content="2023-03-14T03:15:09.000Z">
+<meta property="article:author" content="kevin">
+<meta property="article:tag" content="javascript">
+<meta property="article:tag" content="eventloop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822809.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://jourfreedom.github.io/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: {"defaultEncoding":1,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":300},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Javascript的EventLoop事件循环',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-03-14 11:15:09'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/buildings-landmarks-skyscrapers-towers.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清單</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音樂</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 電影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/8ea16b280878493e8b07cd4f33c4b465_9b9b8903ca754025ae8507dbb805525a_thumb.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">清风</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首頁</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 時間軸</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 標籤</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分類</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清單</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音樂</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 電影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友鏈</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 關於</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Javascript的EventLoop事件循环</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2023-03-14T03:15:09.000Z" title="发表于 2023-03-14 11:15:09">2023-03-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2023-03-14T03:15:09.000Z" title="更新于 2023-03-14 11:15:09">2023-03-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF%E7%AF%87/">前端篇</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%89%8D%E7%AB%AF%E7%AF%87/Javascript/">Javascript</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Javascript的EventLoop事件循环"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><div class="note purple icon-padding simple"><i class="note-icon far fa-hand-scissors"></i><p>“請說說什麼是 Event Loop?” 這句經典的面試題不知道嚇倒了多少人，包括曾經的我自己…，這篇就是本人用來喚醒記憶用的日常 MDN 閱讀筆記，歡迎對這主題”好像懂又好像不懂”的夥伴們一起來深入了解一下吧</p>
+</div>
+
+<blockquote>
+<p>前言<br>在開始之前需要先簡單釐清一下概念，我們都知道 Javascript 語言本身是單線程環境，也就是一次只同時處理一件事（call stack），但在瀏覽器中，V8 引擎中 “concurrency model” 並行模型及 “Event Loop” 的概念卻鮮少被提及，因為他是實作在瀏覽器環境的強大功能，而不是被原生的 Javascript ECMAScript 明定規範。</p>
+</blockquote>
+<p>下面馬上來介紹下這幾個幫助 Javascript 更加強大的特性～</p>
+<ol>
+<li><p>執行環境 Runtime Concept<br>在正式講到 Javascript 的 Event Loop 前，我們有必要先了解所謂的執行環境，下面圖片參考自 MDN，可以看到共可分為主要三個概念：Stack, Heap, Queue：</p>
+</li>
+<li><p>Stack 堆疊（call stack）<br>每次呼叫一個函式後，會產生一個包含該函式執行環境參數的 frame，每次呼叫一個新函式就會往 Stack 內疊加，而每當一個函式執行結束後，就會將該函式對應的 frame 從 Stack 中移除，這是作為單線程的 Javascript 的基本特性。</p>
+</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">foo</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;foo go&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">bar</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;bar go&#x27;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">foo</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">bar</span>();</span><br></pre></td></tr></table></figure>
+
+<p>上面範例中，bar 呼叫後會往 Stack 裡堆疊一個含有 bar 執行環境參數的 frame，而 bar 中又呼叫了 foo，所以會再往 Stack 裡堆疊一個含有 foo 環境的 frame，之後當 foo 執行完畢就會從 Stack 中移除該 foo 執行的 frame，最後 bar 執行完畢移除 bar 的 frame。</p>
+<p>總結來說，Stack 的功能主要就是紀錄當前環境正在做什麼的一個追蹤序列。</p>
+<ol start="3">
+<li><p>Heap 堆積<br>可以把 Heap 想像成一個記憶體，裡面分配儲藏著各種物件，是一個無結構的大區域。</p>
+</li>
+<li><p>Queue 佇列<br>Javascript 執行環境的 Queue 主要基於 FIFO（First in First Out）原則執行，裡面裝載著所有待處理的Task，每當 Stack 中有空間釋出時，就會從 Queue 中提取一個Task進行處理，並將該 Task 中相關聯的所有 function 執行完畢後才會提取下一個。</p>
+</li>
+<li><p>Event Loop 事件循環<br>呈上面的 Queue 概念，因為在實作此一概念的功能時常常以下方的範例方式進行，故被取名為 Event Loop:</p>
+</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (queue.<span class="title function_">waitForMessage</span>()) &#123;</span><br><span class="line">  queue.<span class="title function_">processNextMessage</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果 Queue 中沒有任何 Task 時，waitForMessage 會同步地等待新 task 到來。</p>
+<p>以下介紹有關 Event Loop 的幾個特性：</p>
+<p>Run to completion 執行到完成<br>每個Task會在當前 task 處理完成後才處理下一個</p>
+<p>優點：分析程式時提供可靠性，可確保程式依序有效的執行不被取代。<br>缺點：若一個 task 要很久的時間來執行完畢，網頁程式會無法即時處理使用者的基本操作，例如 click 或 scroll。瀏覽器為了避免此問題會跳出警告提示執行過久，實作上建議盡可能縮短task的執行時間，或是將一個task切割成數個執行。<br>Adding message 添加訊息<br>Basic<br>那麼究竟瀏覽器會怎麼添加 Task 呢？在一般狀況下，一個 task 必須同時由兩個部分構成 - 事件觸發, 事件監聽者，前者比如常見的點擊事件，而後者比如 addEventListener，如果沒有事件監聽者，則該事件就不會形成訊息。或是如常見的 script tag 也會添加一個新的 task 進入 queue</p>
+<p><strong>setTimeout 與誤差</strong><br>另一個常見的添加訊息方式是 web API 中的 setTimeout 等等，當 Javascript 執行時遇到這些 web API 時，就會將第一個參數中指定的動作轉為訊息加入瀏覽器 Queue 中，而第二個參數為延遲時間，若當下無其他訊息已在 Queue 裡，則該訊息將在延遲時間過後被立即取出調用。若 Queue 中已有其他訊息，則該訊息必須等到在他之前所添加的其他訊息執行完畢，也因此第二個參數只能表示最短時間，而不是一個精準的時間。</p>
+<p>下面範例展示失準的 setTimeout 延遲：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> now = <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> local = <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line">  <span class="keyword">var</span> i = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span>(i++ &lt; <span class="number">99999999</span>) &#123; &#125;;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;wait 1:&#x27;</span>, local - now);</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> local = <span class="keyword">new</span> <span class="title class_">Date</span>();</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;wait 2:&#x27;</span>, local - now);</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// start</span></span><br><span class="line"><span class="comment">// end</span></span><br><span class="line"><span class="comment">// wait 1: 1000</span></span><br><span class="line"><span class="comment">// wait 1: 1057</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到我們使用兩個相同延遲 1000ms 的 setTimeout，可以明顯看到第二個晚了 57ms，該時間就是等待前一個執行完畢的等待時間，雖然看起來差不多，但如果是在 setInterval 的狀況下，誤差就會逐漸擴大。</p>
+<p><strong>Zero delays（零延遲）</strong><br>「零延遲」並非意味著函式（callback function）會在 0ms 之後立刻被執行。實際延遲狀況會參考佇列中等待的訊息數量來決定。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;message in callback&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// start</span></span><br><span class="line"><span class="comment">// end</span></span><br><span class="line"><span class="comment">// message in callback</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到範例中，即使設定延遲時間為 0，其仍視為新的訊息並必須等待當前訊息執行完畢。</p>
+<p>Never Blocking（絕不阻塞）<br>事件循環這個模型有一個非常有趣的特色就是預設狀況下永不阻塞，但凡事總有例外，像是 alert 或是同步的 XHR，好的實作方式是盡力避開他們～</p>
+<p>實作<br>上面講了一堆理論，實作上我們該怎麼使用這些特性又是另一個問題，常見進行非同步的方式有幾種，包含最基本的 callback 回調函式，上面講到的 setTimeout，以及現今最流行使用的 promise。</p>
+<ul>
+<li>Callback 回調函式<br>以下是一個最簡單的點擊事件監聽，我們明確定義了一個添加訊息的方式，當後續按鈕點擊觸發後，瀏覽器就會添加一個 cb 訊息到 Queue 中</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;btn&#x27;</span>).<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;button clicked&#x27;</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>setTimeout<br>直接使用 web api 添加</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;do something&#x27;</span>);</span><br><span class="line">&#125;, <span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Promise<br>使用 Promise 物件進行操作，並在 then 中定義回調函式</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="keyword">function</span> <span class="title function_">cb</span>(<span class="params">resolve</span>) &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;do something - sync&#x27;</span>);</span><br><span class="line">  <span class="title function_">resolve</span>();</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;do something - async&#x27;</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Micro-amp-Macro-queue"><a href="#Micro-amp-Macro-queue" class="headerlink" title="Micro &amp; Macro queue"></a>Micro &amp; Macro queue</h2><p>上面的回調函式已經很清楚是一個Task會添加到 Queue 中，這裡先不討論了，這裡專注討論 <code>setTimeout</code> 與 <code>promise</code> 的差異，相信很多人吃過很多雞但都沒看過雞吧！！…</p>
+<p>誒不是！！兩個都用過但其實是有些微差異的，繼續往下看看這個範例，先想想他的輸出順序會是如何？</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise exec&#x27;</span>);</span><br><span class="line">  <span class="title function_">resolve</span>();</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise after resolve&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise then&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;setTimeout exec&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br><span class="line"><span class="comment">// 答案是</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// start</span></span><br><span class="line"><span class="comment">// promise exec</span></span><br><span class="line"><span class="comment">// promise after resolve</span></span><br><span class="line"><span class="comment">// end</span></span><br><span class="line"><span class="comment">// promise then</span></span><br><span class="line"><span class="comment">// setTimeout exec</span></span><br></pre></td></tr></table></figure>
+
+<p>這邊要介紹一個 <code>micro</code>, <code>macro queue</code> 的概念，在 <code>Javascript</code> 的事件中，分為兩個分類：</p>
+<p><strong>micro queue</strong>: <code>promise</code>,<code>Mutation Observer API</code>, <code>queueMicrotask</code><br><strong>macro queue(task queue)</strong>: <code>setTimeout</code>, <code>dom event listener</code>, <code>script</code></p>
+<ul>
+<li><p>Microtask<br>microtask 是ㄧ段函式，並會在當前創造他的 function stack 執行完畢(清空)離開後，並在將控制權限交給 Event Loop 之前執行，如此可確保 microtask 不會影響污染到其他 script 的執行，也確保 user agent 不會在 microtask 執行完畢前做出相應的反應。</p>
+</li>
+<li><p>Macrotask(Task)<br>Macrotask 主要與 Microtask 有兩大差異：</p>
+</li>
+</ul>
+<p>每當 Task 執行結束時，Event Loop 會檢查當前 task 是否有明確回傳控制權給其他 javascript code，如果沒有，則會將所有存在 micro queue 中的動作執行，並依此往復執行數次（包含其他事件驅動或 script 回調等等）</p>
+<p>即使使用 <code>setTimeout</code> 或 <code>queueMicrotask</code> 一次添加大量 <code>microtask</code>，其也會在下一個 <code>Task</code> 執行前執行完畢，因為 <code>micro queue</code> 會在每個 task 執行後執行並清空，不論在當前 <code>Task</code> 內添加了多少 <code>microtask</code></p>
+<p>解說答案</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;start&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 2</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise exec&#x27;</span>);</span><br><span class="line">  <span class="title function_">resolve</span>();</span><br><span class="line">  <span class="comment">// 3</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise after resolve&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 5</span></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;promise then&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 6</span></span><br><span class="line"><span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;setTimeout exec&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;end&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p><code>promise</code> 建立時內部的回調會立即調用，這邊要注意的是 <code>resolve</code> 後並不會停止後續的程式執行，當 <code>end</code> 執行完畢後代表 <code>task</code> 已結束，接著會檢查並調用所有 <code>micro queue</code> 中的 <code>task</code>，當 <code>micro queue</code> 清空後，<code>event loop</code> 提取下一個 <code>Task</code> 執行。</p>
+<p>結論<br>本篇主要介紹基礎的 Event Loop 概念，如果你對更深入的差異內容感興趣，可以前往這裡觀看詳細的解釋。</p>
+<p>以下結論重點：</p>
+<p>Micro Queue 會在每次 Task 執行結束後，全部調用並清空，接著 Event Loop 提取下一個 Task 執行。<br><strong>Microtask</strong> 包含 <code>Promise</code> 的 <code>then</code>, <code>queueMicrotask</code> 等等動作。<br><strong>Macrotask</strong> 包含 <code>Event Callback</code>, <code>setTimeout</code>, <code>script</code> 等等。<br>希望大家看完本篇後都能對 <code>Javascript</code> 的 <code>Event Loop</code> 有更深度的了解摟，下次面試官再問也不怕拉～</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://jourfreedom.github.io">kevin</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://jourfreedom.github.io/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/">https://jourfreedom.github.io/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://jourfreedom.github.io" target="_blank">清风</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/javascript/">javascript</a><a class="post-meta__tags" href="/tags/eventloop/">eventloop</a></div><div class="post_share"><div class="social-share" data-image="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822809.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/vue/pinia%E7%9A%84%E4%BD%BF%E7%94%A8/"><img class="next-cover" src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822006.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">pinia的使用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/07/30/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/javascript%E4%B9%8B%E6%89%8B%E5%86%99Promise/" title="javascript之手写Promise"><img class="cover" src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/Wild-Life.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-07-30</div><div class="title">javascript之手写Promise</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/buildings-landmarks-skyscrapers-towers.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">kevin</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">53</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">14</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">16</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/jourFreedom/jourFreedom.github.io.git"><i class="fab fa-github"></i><span>Github</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/obey-yechuan" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="/yechuan97@outlook.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">生活是一面镜子，你对它笑，它也会回报以微笑。</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Micro-amp-Macro-queue"><span class="toc-text">Micro &amp; Macro queue</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/" title="Javascript的EventLoop事件循环"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822809.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Javascript的EventLoop事件循环"/></a><div class="content"><a class="title" href="/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/" title="Javascript的EventLoop事件循环">Javascript的EventLoop事件循环</a><time datetime="2023-03-14T03:15:09.000Z" title="发表于 2023-03-14 11:15:09">2023-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/vue/pinia%E7%9A%84%E4%BD%BF%E7%94%A8/" title="pinia的使用"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822006.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="pinia的使用"/></a><div class="content"><a class="title" href="/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/vue/pinia%E7%9A%84%E4%BD%BF%E7%94%A8/" title="pinia的使用">pinia的使用</a><time datetime="2023-03-14T02:24:28.000Z" title="发表于 2023-03-14 10:24:28">2023-03-14</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/03/08/Linux%E7%AF%87/centos7%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98/" title="centos7环境问题"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301821181.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="centos7环境问题"/></a><div class="content"><a class="title" href="/2023/03/08/Linux%E7%AF%87/centos7%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98/" title="centos7环境问题">centos7环境问题</a><time datetime="2023-03-08T02:17:41.000Z" title="发表于 2023-03-08 10:17:41">2023-03-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/03/02/Java%E7%AF%87/JAVA%E9%85%8D%E7%BD%AENacos/" title="JAVA配置Nacos"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/buildings-landmarks-skyscrapers-towers.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="JAVA配置Nacos"/></a><div class="content"><a class="title" href="/2023/03/02/Java%E7%AF%87/JAVA%E9%85%8D%E7%BD%AENacos/" title="JAVA配置Nacos">JAVA配置Nacos</a><time datetime="2023-03-02T08:48:31.000Z" title="发表于 2023-03-02 16:48:31">2023-03-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/" title="js循环使用async，await"><img src="https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822010.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="js循环使用async，await"/></a><div class="content"><a class="title" href="/2023/02/07/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/js%E5%BE%AA%E7%8E%AF%E4%BD%BF%E7%94%A8async%EF%BC%8Cawait/" title="js循环使用async，await">js循环使用async，await</a><time datetime="2023-02-07T03:48:25.000Z" title="发表于 2023-02-07 11:48:25">2023-02-07</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/202207301822011.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By kevin</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="translateLink" type="button" title="简繁转换">簡</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="聊天"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.min.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: '',
+      appKey: '',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !true) {
+  if (true) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://jourfreedom.github.io/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/'
+    this.page.identifier = '/2023/03/14/%E5%89%8D%E7%AB%AF%E7%AF%87/javascript/Javascript%E7%9A%84EventLoop%E4%BA%8B%E4%BB%B6%E5%BE%AA%E7%8E%AF/'
+    this.page.title = 'Javascript的EventLoop事件循环'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+
+  document.getElementById('darkmode').addEventListener('click', () => {
+    setTimeout(() => window.disqusReset(), 200)
+  })
+}
+
+if ('Valine' === 'Disqus' || !true) {
+  if (true) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><div class="aplayer no-destroy" data-id="35544154" data-server="kugou" data-type="album" data-fixed="true" data-autoplay="true"> </div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
