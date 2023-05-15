@@ -47,7 +47,7 @@ pm2 start script.sh            # 启动 bash 脚本
 --name     指定 app 名字
 --watch    监听重启，启用情况下，文件夹或子文件夹下变化应用自动重启
 --ignore_watch  忽略监听的文件夹，支持正则表达式,配合 watch 使用
---max-memory-restart  最大内存限制数，超出自动重启；
+--max-memory-restart  最大内存限制数，超出自动重启；=1024M
 --env      环境变量，object类型，如{"NODE_ENV":"production", "ID": "42"}；
 --log      指定 log 的位置, 若要指定新位置，需将原本的 process 刪掉，再重新启动即可
 --output   指定 output log 位址
@@ -82,4 +82,38 @@ pm2 flush
 ```
 
 3. 查看日志
-pm2 logs [name | id]
+`pm2 logs [name | id]`
+
+## 解决pm2日志过大引起的服务器问题
+
+### 安装插件pm2-logrotate
+
+ `pm2 install pm2-logrotate`
+
+### pm2设置配置项
+
+例如：当日志文件数量超过50个时候，就自动删除旧文件
+`pm2 set  pm2-logrotate:retain 50`
+
+| 配置项 | 简介|
+| ---- | ---- |
+| Compress | 是否通过gzip压缩日志 |
+|max_size | 单个日志文件的大小，比如上图中设置为1K（这个其实太小了，实际文件大小并不会严格分为1K）|
+|retain|保留的日志文件个数，比如设置为10,那么在日志文件达到10个后会将最早的日志文件删除掉|
+|dateFormat|日志文件名中的日期格式，默认是YYYY-MM-DD_HH-mm-ss，注意是设置的日志名+这个格式，如设置的日志名为abc.log，那就会生成abc_YYYY-MM-DD_HH-mm-ss.log名字的日志文件|
+|rotateModule|把pm2本身的日志也进行分割workerInterval检查日志大小的间隔(最小值为1）单位为秒（控制模块检查log日志大小的循环时间，默认30s检查一次）|
+|rotateInterval|设置强制分割，默认值是0 0 ** *，意思是每天晚上0点分割，这个足够了个人觉得|
+
+`pm2 conf pm2-logrotate`来查看详细的配置。
+
+### 设置pm2开机自启动
+
+`pm2 startup`，这个命令会在系统 `/etc/systemd/system/` 路径下生成一个 pm2-root.service 文件用来开机启动 pm2 服务。
+`pm2 save`, 保存当前 pm2 运行的各个应用保存到 `/root/.pm2/dump.pm2` 下，开机重启时读取该文件中的内容启动相关应用。
+
+### pm2导致的内存暴涨问题
+
+查看系统内存使用情况
+`ps aux --sort -rss | head -n 10`
+杀死PM2
+`pm2 kill`

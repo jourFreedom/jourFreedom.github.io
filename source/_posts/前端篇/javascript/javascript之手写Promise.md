@@ -5,6 +5,8 @@ top_img: >-
 date: 2022-07-30 16:02:24
 updated: 2022-07-30 16:02:24
 tags:
+  - javascript
+  - Promise
 categories: 
   - 前端篇
   - javascript
@@ -113,27 +115,29 @@ if (this.status === PENDING) {
 }
 return this
 }
-}</code></pre>
-</li>
-<li>
-<p>测试案例</p>
-<pre><code class="language-javascript">function a() {
-return new PromiseTest((resolve, reject) => { 
-setTimeout(() => {
-  resolve(123)
-},1000)
-})
 }
+```
+
+测试案例
+
+```js
+function a() {
+  return new PromiseTest((resolve, reject) => {
+  setTimeout(() => {
+    resolve(123)
+  },1000)
+  })
+}
+
 let r = a()
 r.then((result) => {
-console.log('result: ', result);
+  console.log('result: ', result);
 }).then(() => {
-console.log('result2');
-})
-.catch(err => {
-console.log('err: ', err);
+  console.log('result2');
+}).catch(err => {
+  console.log('err: ', err);
 }).finally(() => {
-console.log('完成promise');
+  console.log('完成promise');
 })
 //object
 // 1s后

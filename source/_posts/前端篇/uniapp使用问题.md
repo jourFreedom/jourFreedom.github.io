@@ -1,6 +1,8 @@
 ---
 title: uniapp使用问题
-categories: 未分类
+categories: 
+  - 前端篇
+  - vue
 top_img: >-
   https://raw.githubusercontent.com/jourFreedom/picbeds/main/blog_imgs/8ea16b280878493e8b07cd4f33c4b465_9b9b8903ca754025ae8507dbb805525a_thumb.jpg
 date: 2023-02-02 18:38:58

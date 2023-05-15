@@ -29,6 +29,10 @@ aside:
 ## 基础命令使用
 
 ```bash
+# 启动docker
+service docker start
+# 关闭docker
+service docker stop
 # 搜索可使用的docker
 docker search
 

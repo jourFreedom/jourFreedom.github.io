@@ -88,7 +88,9 @@ find path -option [-print] [-exec -ok command]
 
 ## 磁盘管理
 
-1. `df` - 显示磁盘空间使用情况
+1. `df -h [path]` - 显示磁盘空间使用情况
+2. `du -sh [path]*` 查看当前目录每个文件夹内存使用情况
+   > 等同于 `du --max-depth=1 -h`
 
 可选参数
 
@@ -109,6 +111,9 @@ find path -option [-print] [-exec -ok command]
 - `-v` (忽略)
 - `--help` 显示这个帮手并且离开
 - `--version` 输出版本资讯并且离开
+
+3. `ps aux --sort -rss | head -n 10` 查看内存占用前10
+4. `ps aux --sort -pcpu | head -n 10` 查看CPU占用前10
 
 ## 文件传输
 

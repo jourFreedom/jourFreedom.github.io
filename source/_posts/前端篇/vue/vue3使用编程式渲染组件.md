@@ -30,3 +30,18 @@ aside:
 ## vue3使用render渲染组件
 >
 > vue3中语法糖`script setup`是`SFC`组件,不适用渲染的组件,必须使用`plain`的文件，类似React中**函数组件**，只用于渲染页面，是无状态组件（在react16.8中添加了hooks可以使用`useState`钩子去管理`state`，使用`useEffect`钩子使用生命周期函数）
+
+## vue3常见问题
+
+1. vue3中reactive数据被重新赋值后会丢失响应式,无法直接赋值
+  解决办法
+
+  ```js
+  // 使用state属性重新赋值
+  const state = reactive({})
+  state.name = 'response重新赋值'
+
+  // 使用ref
+  const state = ref()
+  state.value = 'response重新赋值'
+  ```
